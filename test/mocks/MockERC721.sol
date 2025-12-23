@@ -2,10 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {IERC165} from "forge-std/interfaces/IERC165.sol";
-import {
-    IERC721,
-    IERC721TokenReceiver
-} from "forge-std/interfaces/IERC721.sol";
+import {IERC721} from "forge-std/interfaces/IERC721.sol";
 
 /// @notice Minimal ERC721 implementation for testing the marketplace.
 contract MockERC721 is IERC721 {
@@ -138,4 +135,3 @@ contract MockERC721 is IERC721 {
         );
     }
 }
-

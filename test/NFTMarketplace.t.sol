@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-import "../src/NFTMarketplace.sol";
-import "./mocks/MockERC721.sol";
-import "./mocks/MockERC1155.sol";
+import {Test} from "forge-std/Test.sol";
+import {NFTMarketplace} from "../src/NFTMarketplace.sol";
+import {MockERC721} from "./mocks/MockERC721.sol";
+import {MockERC1155} from "./mocks/MockERC1155.sol";
 
 contract NFTMarketplaceTest is Test {
     NFTMarketplace marketplace;
@@ -97,7 +97,7 @@ contract NFTMarketplaceTest is Test {
     }
 
     function testCancelListing() public {
-        uint256 id = _createERC721Listing();
+        uint256 id = _createErc721Listing();
 
         vm.expectEmit(true, false, false, true, address(marketplace));
         emit Cancelled(id);
@@ -110,7 +110,7 @@ contract NFTMarketplaceTest is Test {
     }
 
     function testCancelListingNotSellerReverts() public {
-        uint256 id = _createERC721Listing();
+        uint256 id = _createErc721Listing();
 
         vm.prank(buyer);
         vm.expectRevert(bytes("Only seller"));
@@ -118,7 +118,7 @@ contract NFTMarketplaceTest is Test {
     }
 
     function testBuyERC721Success() public {
-        uint256 id = _createERC721Listing();
+        uint256 id = _createErc721Listing();
 
         uint256 sellerBefore = seller.balance;
         uint256 buyerBefore = buyer.balance;
@@ -138,7 +138,7 @@ contract NFTMarketplaceTest is Test {
     }
 
     function testBuyERC1155Success() public {
-        uint256 id = _createERC1155Listing();
+        uint256 id = _createErc1155Listing();
 
         uint256 sellerBefore = seller.balance;
         uint256 buyerBefore = buyer.balance;
@@ -156,7 +156,7 @@ contract NFTMarketplaceTest is Test {
     }
 
     function testBuyWithWrongValueReverts() public {
-        uint256 id = _createERC721Listing();
+        uint256 id = _createErc721Listing();
 
         vm.prank(buyer);
         vm.expectRevert(bytes("Incorrect ETH amount"));
@@ -164,7 +164,7 @@ contract NFTMarketplaceTest is Test {
     }
 
     function testBuyInactiveListingReverts() public {
-        uint256 id = _createERC721Listing();
+        uint256 id = _createErc721Listing();
 
         vm.prank(seller);
         marketplace.cancel(id);
@@ -176,7 +176,7 @@ contract NFTMarketplaceTest is Test {
 
     // ====== Internal helpers ======
 
-    function _createERC721Listing() internal returns (uint256) {
+    function _createErc721Listing() internal returns (uint256) {
         vm.startPrank(seller);
         erc721.approve(address(marketplace), 1);
         uint256 id = marketplace.list(address(erc721), 1, 1, 1 ether);
@@ -184,7 +184,7 @@ contract NFTMarketplaceTest is Test {
         return id;
     }
 
-    function _createERC1155Listing() internal returns (uint256) {
+    function _createErc1155Listing() internal returns (uint256) {
         vm.startPrank(seller);
         erc1155.setApprovalForAll(address(marketplace), true);
         uint256 id = marketplace.list(address(erc1155), 1, 10, 2 ether);
@@ -192,4 +192,3 @@ contract NFTMarketplaceTest is Test {
         return id;
     }
 }
-

@@ -46,9 +46,17 @@ contract NFTMarketplace {
     event Sold(uint256 indexed listingId, address indexed buyer);
 
     modifier nonReentrant() {
+        _nonReentrantBefore();
+        _;
+        _nonReentrantAfter();
+    }
+
+    function _nonReentrantBefore() internal {
         require(!_entered, "ReentrancyGuard");
         _entered = true;
-        _;
+    }
+
+    function _nonReentrantAfter() internal {
         _entered = false;
     }
 
@@ -176,4 +184,3 @@ contract NFTMarketplace {
         }
     }
 }
-
