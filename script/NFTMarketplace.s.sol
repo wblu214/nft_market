@@ -4,15 +4,11 @@ pragma solidity ^0.8.20;
 import {Script, console2} from "forge-std/Script.sol";
 import {NFTMarketplace} from "../src/NFTMarketplace.sol";
 
-/// @notice Simple deployment script for NFTMarketplace.
-/// @dev 部署到 BSC 测试网时，用 forge script 搭配 --rpc-url BSC 测试网节点即可。
 contract DeployNFTMarketplace is Script {
     function run() external {
-        // 从环境变量读取私钥，例如:
-        // export PRIVATE_KEY=0x...
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-
-        vm.startBroadcast(deployerPrivateKey);
+        // 私钥不在脚本里读取，由 forge 命令行参数提供
+        // 例如：--private-key 或 --sender 等
+        vm.startBroadcast();
 
         // NFTMarketplace 没有构造参数，直接 new 即可
         NFTMarketplace marketplace = new NFTMarketplace();
