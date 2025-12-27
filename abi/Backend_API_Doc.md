@@ -11,6 +11,7 @@
 ---
 
 ## 1. 網絡 & 合約地址
+
 - 網絡：BSC Testnet  
 - Chain ID：`97`  
 - RPC：後端自行配置，例如 `BSC_TESTNET_RPC_URL`  
