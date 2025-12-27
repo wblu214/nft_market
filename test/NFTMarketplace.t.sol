@@ -174,6 +174,98 @@ contract NFTMarketplaceTest is Test {
         marketplace.buy{value: 1 ether}(id);
     }
 
+    function testListAmountZeroReverts() public {
+        vm.prank(seller);
+        erc721.approve(address(marketplace), 1);
+
+        vm.prank(seller);
+        vm.expectRevert(bytes("Amount must be > 0"));
+        marketplace.list(address(erc721), 1, 0, 1 ether);
+    }
+
+    function testListERC721NotOwnerReverts() public {
+        // token 1 owned by seller in setUp, but caller is buyer
+        vm.prank(buyer);
+        vm.expectRevert(bytes("Not token owner"));
+        marketplace.list(address(erc721), 1, 1, 1 ether);
+    }
+
+    function testListERC721NotApprovedReverts() public {
+        // seller owns token but never approves marketplace
+        vm.prank(seller);
+        vm.expectRevert(bytes("Marketplace not approved"));
+        marketplace.list(address(erc721), 1, 1, 1 ether);
+    }
+
+    function testListERC721WithApprovalForAllSuccess() public {
+        vm.prank(seller);
+        erc721.setApprovalForAll(address(marketplace), true);
+
+        vm.prank(seller);
+        uint256 id = marketplace.list(address(erc721), 1, 1, 1 ether);
+
+        assertEq(id, 1);
+        assertEq(marketplace.nextListingId(), 1);
+    }
+
+    function testListERC1155InsufficientBalanceReverts() public {
+        vm.prank(seller);
+        erc1155.setApprovalForAll(address(marketplace), true);
+
+        vm.prank(seller);
+        vm.expectRevert(bytes("Insufficient balance"));
+        // seller only has 100 in setUp
+        marketplace.list(address(erc1155), 1, 101, 1 ether);
+    }
+
+    function testListERC1155NotApprovedReverts() public {
+        // seller has balance but never approves marketplace
+        vm.prank(seller);
+        vm.expectRevert(bytes("Marketplace not approved"));
+        marketplace.list(address(erc1155), 1, 10, 1 ether);
+    }
+
+    function testListUnsupportedNftReverts() public {
+        NonNFT nft = new NonNFT();
+
+        vm.prank(seller);
+        vm.expectRevert(bytes("Unsupported NFT standard"));
+        marketplace.list(address(nft), 1, 1, 1 ether);
+    }
+
+    function testCancelNonexistentListingReverts() public {
+        vm.prank(seller);
+        vm.expectRevert(bytes("Listing does not exist"));
+        marketplace.cancel(999);
+    }
+
+    function testCancelAlreadyInactiveListingReverts() public {
+        uint256 id = _createErc721Listing();
+
+        vm.prank(seller);
+        marketplace.cancel(id);
+
+        vm.prank(seller);
+        vm.expectRevert(bytes("Listing not active"));
+        marketplace.cancel(id);
+    }
+
+    function testBuyNonexistentListingReverts() public {
+        vm.prank(buyer);
+        vm.expectRevert(bytes("Listing does not exist"));
+        marketplace.buy{value: 1 ether}(999);
+    }
+
+    function testNextListingIdTracksListingsCount() public {
+        assertEq(marketplace.nextListingId(), 0);
+
+        _createErc721Listing();
+        assertEq(marketplace.nextListingId(), 1);
+
+        _createErc1155Listing();
+        assertEq(marketplace.nextListingId(), 2);
+    }
+
     // ====== Internal helpers ======
 
     function _createErc721Listing() internal returns (uint256) {
@@ -191,4 +283,7 @@ contract NFTMarketplaceTest is Test {
         vm.stopPrank();
         return id;
     }
+}
+
+contract NonNFT {
 }
